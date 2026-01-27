@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    container_name: attrition-frontend
+    ports:
+      - "3030:3030"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    build: .
+    container_name: attrition-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/attrition_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./models:/app/models:ro
+      - ./data:/app/data:ro
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: attrition-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=attrition_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/create_db.sql:/docker-entrypoint-initdb.d/01-create_db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  seed:
+    build: .
+    container_name: attrition-seed
+    command: python scripts/seed_db.py
+    environment:
+      - DATABASE_URL=postgresql://postgres:password@db:5432/attrition_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data:ro
+      - ./scripts:/app/scripts:ro
+
+volumes:
+  postgres_data:
