@@ -1,3 +1,12 @@
+---
+title: Employee Attrition API
+emoji: 📊
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+---
+
 # Employee Attrition Prediction API
 
 API de prediction d'attrition des employes basee sur le modele de classification du Projet 4.
