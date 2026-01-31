@@ -87,6 +87,24 @@ jobs:
           fetch-depth: 0
           lfs: true
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set HF Space secrets
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          pip install huggingface_hub
+          python -c "
+          from huggingface_hub import HfApi
+          api = HfApi()
+          api.add_space_secret('passkey1510/employee-attrition-api', 'DATABASE_URL', '${{ secrets.DATABASE_URL }}')
+          print('DATABASE_URL secret set on HF Space')
+          "
+
       - name: Push to Hugging Face Spaces
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
