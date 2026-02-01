@@ -1,10 +1,28 @@
-name: CI/CD Pipeline
+name: Backend CI/CD
 
 on:
   push:
     branches: [main, develop]
+    paths:
+      - 'app/**'
+      - 'tests/**'
+      - 'models/**'
+      - 'scripts/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/backend.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'app/**'
+      - 'tests/**'
+      - 'models/**'
+      - 'scripts/**'
+      - 'requirements.txt'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/backend.yml'
 
 jobs:
   test:
@@ -32,7 +50,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run linting (optional)
+      - name: Run linting
         run: |
           pip install ruff
           ruff check app/ --ignore E501 || true
