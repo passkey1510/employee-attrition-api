@@ -5,7 +5,7 @@ import PredictionResult from './components/PredictionResult'
 import ModelInfo from './components/ModelInfo'
 import EmployeeList from './components/EmployeeList'
 
-const API_URL = 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 function App() {
   const [activeTab, setActiveTab] = useState('employees')
