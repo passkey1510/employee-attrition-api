@@ -41,11 +41,25 @@ export default function EmployeeList({ onPredictionResult }) {
     try {
       const res = await fetch(`${API_URL}/employees/${employeeId}/predict`)
       const data = await res.json()
+
+      if (!res.ok) {
+        let errorMessage = 'Prediction failed'
+        if (Array.isArray(data.detail)) {
+          errorMessage = data.detail
+            .map(err => `${err.loc?.slice(1).join(' → ') || 'Field'}: ${err.msg}`)
+            .join('\n')
+        } else if (typeof data.detail === 'string') {
+          errorMessage = data.detail
+        }
+        throw new Error(errorMessage)
+      }
+
       if (onPredictionResult) {
         onPredictionResult(data, employeeId)
       }
     } catch (err) {
       console.error('Prediction failed:', err)
+      setError(err.message)
     } finally {
       setPredicting(null)
     }
