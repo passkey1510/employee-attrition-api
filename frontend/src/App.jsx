@@ -56,7 +56,20 @@ function App() {
 
       if (!res.ok) {
         const errData = await res.json()
-        throw new Error(errData.detail || 'Prediction failed')
+        let errorMessage = 'Prediction failed'
+
+        if (Array.isArray(errData.detail)) {
+          // Validation errors from FastAPI/Pydantic
+          errorMessage = errData.detail
+            .map(err => `${err.loc?.slice(1).join(' → ') || 'Field'}: ${err.msg}`)
+            .join('\n')
+        } else if (typeof errData.detail === 'string') {
+          errorMessage = errData.detail
+        } else if (errData.message) {
+          errorMessage = errData.message
+        }
+
+        throw new Error(errorMessage)
       }
 
       const data = await res.json()
