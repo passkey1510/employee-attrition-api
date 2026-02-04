@@ -257,8 +257,12 @@ export default function PredictionForm({ onSubmit, loading }) {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    // Send raw data - server computes engineered features
-    onSubmit(formData)
+    // Convert percentage string to decimal before sending
+    const dataToSend = {
+      ...formData,
+      augementation_salaire_precedente: parseFloat(formData.augementation_salaire_precedente) / 100
+    }
+    onSubmit(dataToSend)
   }
 
   const renderField = (field) => {

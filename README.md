@@ -26,17 +26,50 @@ Cette API expose un modele de Machine Learning (LogisticRegression) entraine sur
 
 ### Architecture
 
+```mermaid
+flowchart TB
+    subgraph Frontend["Frontend (Vercel)"]
+        UI[React + Vite<br/>Interface utilisateur]
+    end
+
+    subgraph Backend["Backend (Hugging Face Spaces)"]
+        API[FastAPI<br/>REST API]
+        FE[Feature Engineering<br/>5 features calculées]
+        ML[ML Model<br/>LogisticRegression]
+    end
+
+    subgraph Database["Database (Neon)"]
+        DB[(PostgreSQL)]
+        EMP[employees<br/>1470 enregistrements]
+        PRED[predictions<br/>Historique]
+    end
+
+    UI -->|HTTP/JSON| API
+    API --> FE
+    FE --> ML
+    API -->|SQLAlchemy| DB
+    DB --- EMP
+    DB --- PRED
+
+    style Frontend fill:#1a1a2e,stroke:#7c3aed,color:#fff
+    style Backend fill:#1a1a2e,stroke:#06b6d4,color:#fff
+    style Database fill:#1a1a2e,stroke:#10b981,color:#fff
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   HR Input      │────▶│   FastAPI       │────▶│   ML Model      │
-│  (30 raw fields)│     │  + Feature Eng. │     │  (35 features)  │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-                               │
-                               ▼
-                        ┌─────────────────┐
-                        │   PostgreSQL    │
-                        │  (Tracabilite)  │
-                        └─────────────────┘
+
+#### Flux de données
+
+```
+┌─────────────────┐     ┌─────────────────────────┐     ┌─────────────────┐
+│  React Frontend │────▶│  FastAPI (HF Spaces)    │────▶│  ML Model       │
+│    (Vercel)     │     │  + Feature Engineering  │     │  (35 features)  │
+└─────────────────┘     └─────────────────────────┘     └─────────────────┘
+                                    │
+                                    ▼
+                        ┌─────────────────────────┐
+                        │   PostgreSQL (Neon)     │
+                        │   - employees (1470)    │
+                        │   - predictions (logs)  │
+                        └─────────────────────────┘
 ```
 
 ## Installation
@@ -251,13 +284,33 @@ project-5/
 
 ## Deploiement
 
-### Hugging Face Spaces
+### URLs de production
 
-1. Creer un compte sur [Hugging Face](https://huggingface.co)
-2. Creer un nouveau Space (Docker)
-3. Pousser le code
+| Service | URL |
+|---------|-----|
+| **Frontend** | https://employee-attrition-frontend-ten.vercel.app |
+| **API Backend** | https://passkey1510-employee-attrition-api.hf.space |
+| **API Docs (Swagger)** | https://passkey1510-employee-attrition-api.hf.space/docs |
 
-### Docker
+### CI/CD Pipeline
+
+Le deploiement est automatise via GitHub Actions:
+
+```mermaid
+flowchart LR
+    A[Push to main] --> B{Path changed?}
+    B -->|backend/*| C[Backend CI/CD]
+    B -->|frontend/*| D[Frontend CI/CD]
+    C --> E[Tests Pytest]
+    E --> F[Deploy HF Spaces]
+    D --> G[Build Vite]
+    G --> H[Deploy Vercel]
+```
+
+- **Backend**: Tests → Build Docker → Deploy to Hugging Face Spaces
+- **Frontend**: Build → Deploy to Vercel
+
+### Docker (local)
 
 ```bash
 # Build
