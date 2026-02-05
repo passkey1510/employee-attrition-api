@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Users, Search, ChevronLeft, ChevronRight, Play, Loader2, UserCheck, UserX, Database, Filter } from 'lucide-react'
 
-const API_URL = 'http://localhost:8000'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export default function EmployeeList({ onPredictionResult }) {
   const [employees, setEmployees] = useState([])
