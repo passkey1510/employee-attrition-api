@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Users, Search, ChevronLeft, ChevronRight, Play, Loader2, UserCheck, UserX, Database, Filter } from 'lucide-react'
+import { parseValidationErrors } from '../utils/errorTranslation'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -43,15 +44,7 @@ export default function EmployeeList({ onPredictionResult }) {
       const data = await res.json()
 
       if (!res.ok) {
-        let errorMessage = 'Prediction failed'
-        if (Array.isArray(data.detail)) {
-          errorMessage = data.detail
-            .map(err => `${err.loc?.slice(1).join(' → ') || 'Field'}: ${err.msg}`)
-            .join('\n')
-        } else if (typeof data.detail === 'string') {
-          errorMessage = data.detail
-        }
-        throw new Error(errorMessage)
+        throw new Error(parseValidationErrors(data))
       }
 
       if (onPredictionResult) {

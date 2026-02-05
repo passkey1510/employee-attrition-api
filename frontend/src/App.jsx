@@ -4,6 +4,7 @@ import PredictionForm from './components/PredictionForm'
 import PredictionResult from './components/PredictionResult'
 import ModelInfo from './components/ModelInfo'
 import EmployeeList from './components/EmployeeList'
+import { parseValidationErrors } from './utils/errorTranslation'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
@@ -56,20 +57,7 @@ function App() {
 
       if (!res.ok) {
         const errData = await res.json()
-        let errorMessage = 'Prediction failed'
-
-        if (Array.isArray(errData.detail)) {
-          // Validation errors from FastAPI/Pydantic
-          errorMessage = errData.detail
-            .map(err => `${err.loc?.slice(1).join(' → ') || 'Field'}: ${err.msg}`)
-            .join('\n')
-        } else if (typeof errData.detail === 'string') {
-          errorMessage = errData.detail
-        } else if (errData.message) {
-          errorMessage = errData.message
-        }
-
-        throw new Error(errorMessage)
+        throw new Error(parseValidationErrors(errData))
       }
 
       const data = await res.json()
