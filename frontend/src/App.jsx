@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { Activity, Users, Brain, Database, AlertTriangle, CheckCircle, XCircle, Info, Send, Loader2, Sparkles } from 'lucide-react'
+import { Activity, Users, Brain, Database, AlertTriangle, CheckCircle, XCircle, Info, Send, Loader2, Sparkles, Clock } from 'lucide-react'
 import PredictionForm from './components/PredictionForm'
 import PredictionResult from './components/PredictionResult'
 import ModelInfo from './components/ModelInfo'
 import EmployeeList from './components/EmployeeList'
+import PredictionHistory from './components/PredictionHistory'
 import { parseValidationErrors } from './utils/errorTranslation'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
@@ -78,6 +79,7 @@ function App() {
   const tabs = [
     { id: 'employees', label: 'Employés', icon: Database },
     { id: 'predict', label: 'Saisie Manuelle', icon: Activity },
+    { id: 'history', label: 'Historique', icon: Clock },
     { id: 'model', label: 'Info Modèle', icon: Info },
   ]
 
@@ -267,6 +269,18 @@ function App() {
                   <PredictionResult prediction={prediction} />
                 )}
               </div>
+            </div>
+          )}
+
+          {activeTab === 'history' && (
+            <div className="glass rounded-2xl p-6">
+              <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center border border-primary/30">
+                  <Clock className="w-5 h-5 text-primary" />
+                </div>
+                <span>Historique des Prédictions</span>
+              </h2>
+              <PredictionHistory />
             </div>
           )}
 
